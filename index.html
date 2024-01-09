@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rounded Canvas</title>
+
+    <link rel="stylesheet" href="./assets/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <canvas id="my-canvas"></canvas>
+    </div>
+    
+    <script>
+        const myCanvas = document.getElementById('my-canvas');
+        let micVisualyser;
+
+        navigator.mediaDevices.getUserMedia({audio:true})
+            .then(function(rawData) {
+                const audio = new AudioContext();
+                audio.microphone = audio.createMediaStreamSource(rawData);
+
+                const audioEl = document.createElement('audio');
+                audioEl.srcObject = rawData;
+                audioEl.volume = 0;
+                audioEl.play();
+                audioEl.onloadeddata = function() {
+                    micVisualyser = new MicVisualyser(myCanvas, audio);
+                }
+            })
+            .catch(function(error){
+                alert(error);
+            })
+    </script>
+    <script src="./assets/js/MicVisualyser.js"></script>
+</body>
+</html>

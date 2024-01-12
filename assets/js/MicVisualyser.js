@@ -3,9 +3,11 @@ class MicVisualyser {
         this.canvas = canvas;
         this.ctx = this.canvas.getContext('2d');   
         this.gridSize = gridSize;
+
+        this.vu = new VU(this.canvas);
         
         this.analyser = audio.createAnalyser();
-        this.analyser.fftSize = 512;
+        this.analyser.fftSize = 512; // 2048 ;
         audio.microphone.connect(this.analyser);
         //this.dataArray = new Float32Array(this.analyser.frequencyBinCount);
         //this.analyser.connect(audio.destination);
@@ -41,10 +43,12 @@ class MicVisualyser {
     plotAudio() {
         const dataArray = new Float32Array(this.analyser.frequencyBinCount);
         this.analyser.getFloatTimeDomainData(dataArray);
-        console.log(dataArray);
+        //console.log(dataArray);
         //debugger;
         
         //const normSamples = this.dataArray.map(e => e/128-1); //normalize values between -1 and 1
+
+        let level = 0;
 
 
         this.ctx.beginPath();
@@ -53,12 +57,18 @@ class MicVisualyser {
         this.ctx.moveTo(0, this.canvas.height/2);
         for (let i=0; i<dataArray.length; i++) {
             this.ctx.lineTo(this.canvas.width*i/dataArray.length, this.canvas.height/2 + dataArray[i]*100);
+            level += dataArray[i];
         }
         this.ctx.stroke();
+
+        level = level*150 / dataArray.length;
+        this.vu.update(level);
     }
 
     animate() {
         this.#updateCanvas();
+
+        this.vu.draw();
 
         this.plotAudio();
 
